@@ -13,15 +13,14 @@ export default class NewGame extends React.Component {
     this.handleClick = this.handleClick.bind(this);
   }
   async handleClick() {
-    const { data, status, statusText } = await axios.get('/api/games/new');
-    // TODO: Test if statusText is the correct piece to display.
-    if (status !== 200) {
+    try {
+      const { data } = await axios.get('/api/games/new');
+      Router.push(`/games/sessions/${data.sessionId}?gameId=${data.gameId}`);
+    } catch (e) {
       this.setState({
         error: statusText
       });
-      return;
     }
-    Router.push(`/games/${data.id}`);
   }
   render() {
     // TODO: In-line error

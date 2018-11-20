@@ -9,7 +9,10 @@ module.exports = () => {
 
   router.get('/new', (req, res) => {
     const game = getNewGame();
-    res.send(game);
+    res.send({
+      gameId: game.id,
+      sessionId: game.gameCreator.id
+    });
   });
 
   router.get('/join/:gameId', (req, res) => {

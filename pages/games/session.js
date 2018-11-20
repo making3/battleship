@@ -30,6 +30,13 @@ class GameSession extends React.Component {
     return (
       <div>
         <pre>Session ID {this.props.router.query.sessionId}</pre>
+
+        {this.props.router.query.gameId &&
+          <div>
+            Have a friend join the game by visiting the following URL (works only once!):
+            <pre>http://localhost:3000/games/join/{this.props.router.query.gameId}</pre>
+          </div>
+        }
       </div>
     );
   }

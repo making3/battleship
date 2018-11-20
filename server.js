@@ -25,7 +25,7 @@ app.prepare()
 
     server.get('/games/sessions/:id', (req, res) => {
       const actualPage = '/games/session';
-      const queryParams = { sessionId: req.params.id };
+      const queryParams = { sessionId: req.params.id, gameId: req.query.gameId };
       app.render(req, res, actualPage, queryParams);
     });
 
