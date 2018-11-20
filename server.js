@@ -16,6 +16,19 @@ app.prepare()
 
     server.use('/api', routes());
 
+    // TODO: Refactor, repeated info over and over..
+    server.get('/games/join/:id', (req, res) => {
+      const actualPage = '/games/join';
+      const queryParams = { gameId: req.params.id };
+      app.render(req, res, actualPage, queryParams);
+    });
+
+    server.get('/games/sessions/:id', (req, res) => {
+      const actualPage = '/games/session';
+      const queryParams = { sessionId: req.params.id };
+      app.render(req, res, actualPage, queryParams);
+    });
+
     server.get('/games/:id', (req, res) => {
       const actualPage = '/game';
       const queryParams = { gameId: req.params.id };
