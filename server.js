@@ -29,12 +29,6 @@ app.prepare()
       app.render(req, res, actualPage, queryParams);
     });
 
-    server.get('/games/:id', (req, res) => {
-      const actualPage = '/game';
-      const queryParams = { gameId: req.params.id };
-      app.render(req, res, actualPage, queryParams);
-    });
-
     server.get('*', (req, res) => {
       return handle(req, res);
     });
