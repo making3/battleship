@@ -1,7 +1,8 @@
 import axios from 'axios';
 import React from 'react';
-import {withRouter} from 'next/router'
-import Router from 'next/router'
+import {withRouter} from 'next/router';
+import Router from 'next/router';
+import Layout from '../../components/layout';
 
 class JoinGame extends React.Component {
   state = {
@@ -19,14 +20,14 @@ class JoinGame extends React.Component {
     }
   }
   render() {
-    if (this.state.error) {
-      return (
-        <div>{this.state.error}</div>
-      )
-    }
-
     return (
-      <p>Joining game..</p>
+      <Layout>
+        {this.state.error ? (
+          <div>{this.state.error}</div>
+        ) : (
+          <p>Joining game..</p>
+        )}
+      </Layout>
     );
   }
 }
