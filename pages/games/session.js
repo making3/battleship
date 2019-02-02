@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React from 'react';
-import {withRouter} from 'next/router'
+import {withRouter} from 'next/router';
+import Layout from '../../components/layout';
 
 class GameSession extends React.Component {
   state = {
@@ -22,22 +23,23 @@ class GameSession extends React.Component {
     }
   }
   render() {
-    if (this.state.error) {
-      return (
-        <div>{this.state.error}</div>
-      )
-    }
     return (
-      <div>
-        <pre>Session ID {this.props.router.query.sessionId}</pre>
-
-        {this.props.router.query.gameId &&
+      <Layout>
+        {this.state.error ? (
+          <div>{this.state.error}</div>
+        ) : (
           <div>
-            Have a friend join the game by visiting the following URL (works only once!):
-            <pre>http://localhost:3000/games/join/{this.props.router.query.gameId}</pre>
+            <pre>Session ID {this.props.router.query.sessionId}</pre>
+
+            {this.props.router.query.gameId &&
+              <div>
+                Have a friend join the game by visiting the following URL (works only once!):
+                <pre>http://localhost:3000/games/join/{this.props.router.query.gameId}</pre>
+              </div>
+            }
           </div>
-        }
-      </div>
+        )}
+      </Layout>
     );
   }
 }
