@@ -1,0 +1,56 @@
+$break-large: 417px;
+$large-board-size: 400px;
+
+$break-small: 300px;
+$medium-board-size: 300px;
+$small-board-size: 225px;
+
+@mixin respond-to($media) {
+  @if $media == handhelds {
+    @media only screen and (max-width: $break-small) { @content; }
+  }
+  @if $media == not-handhelds {
+    @media only screen and (min-width: $break-small + 1) { @content; }
+  }
+  @else if $media == not-wide-screens {
+    @media only screen and (max-width: $break-large - 1) { @content; }
+  }
+  @else if $media == medium-screens {
+    @media only screen and (min-width: $break-small + 1) and (max-width: $break-large - 1) { @content; }
+  }
+  @else if $media == wide-screens {
+    @media only screen and (min-width: $break-large) { @content; }
+  }
+}
+
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+
+  @include respond-to(handhelds) {
+    height: $small-board-size;
+    width: $small-board-size;
+    line-height: $small-board-size;
+  }
+  @include respond-to(medium-screens) {
+    height: $medium-board-size;
+    width: $medium-board-size;
+    line-height: $medium-board-size;
+  }
+  @include respond-to(wide-screens) {
+    height: $large-board-size;
+    width: $large-board-size;
+    line-height: $large-board-size;
+  }
+
+  padding: 20px;
+}
+
+.board-loading {
+
+}
+
+.board-header {
+  text-align: center;
+}

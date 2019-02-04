@@ -4,68 +4,115 @@ const random = require('../lib/random');
 const games = new Map();
 const sessions = new Map();
 
+// Temporary debugging code!
+createTemporaryGame();
+
 module.exports = () => {
   const router = express.Router();
 
   router.get('/new', (req, res) => {
-    const game = getNewGame();
+    const { id, game } = getNewGame();
     res.send({
-      gameId: game.id,
-      sessionId: game.gameCreator.id
+      gameId: id,
+      sessionId: game[0].sessionId
     });
   });
 
   router.get('/join/:gameId', (req, res) => {
-    const game = games.get(req.params.gameId);
+    let game = games.get(req.params.gameId);
 
     if (!game) {
       res.status(404).send('Game not found!');
       return;
     }
 
-    if (game.gameCreator.opponent) {
+    if (game.length > 1) {
       res.status(400).send('Game already has two players!');
       return;
     }
 
-    const sessionId = random.getId();
-    const session = {
-      id: sessionId,
-      board: getNewBoard(),
-      opponent: game.gameCreator
-    };
-    sessions.set(sessionId, session);
+    game = addPlayerTwo(req.params.gameId);
 
-    const gameCreatorSession = sessions.get(game.gameCreator.id);
-    gameCreatorSession.opponent = session;
-    sessions.set(game.gameCreator.id, gameCreatorSession);
-    res.send({ id: sessionId });
+    res.send({ id: game[1].sessionId });
   });
 
-  router.get('/sessions/:sessionId', (req, res) => {
-    const session = sessions.get(req.params.sessionId);
-
+  router.post('/attack', (req, res) => {
+    const { x, y, sessionId } = req.body;
+    const session = sessions.get(sessionId);
     if (!session) {
-      res.status(404).send('Game session not found!');
-      return;
+      return res.status(404).send('Session not found!');
     }
 
-    res.send(session.board);
+    const game = games.get(session.gameId);
+    const enemyBoard = session.boardIndex === 0 ? 1 : 0;
+    const enemy = game[enemyBoard];
+    enemy.board[x][y] = {
+      hasShip: false,
+      shot: true,
+    };
+    game[enemyBoard] = enemy;
+    games.set(session.gameId, game);
   });
 
-  router.get('/:id', (req, res) => {
-    const game = games.get(req.params.id);
-
+  router.get('/:gameId', (req, res) => {
+    const { game, session } = getGameAndSession(req);
     if (!game) {
       res.status(404).send('Game not found!');
     }
-
-    // TODO: Player specific pages
-    res.send(game);
+    res.send({
+      game,
+      session,
+    });
   });
 
   return router;
 };
+
+function getGameAndSession(req) {
+  const { gameId } = req.params;
+  const { sessionId } = req.query;
+  const game = games.get(gameId);
+  const session = sessions.get(sessionId);
+  return {
+    game,
+    session
+  };
+}
+
+function addNewGame(id=getNewGameId()) {
+  const game = [
+    {
+      sessionId: random.getId(),
+      board: getNewBoard(),
+    }
+ ];
+  games.set(id, game);
+
+  // TODO: boardIndex design is bad, need to rethink.
+  sessions.set(game[0].sessionId, {
+    gameId: id,
+    boardIndex: 0,
+  });
+
+  return { id, game };
+}
+
+function addPlayerTwo(gameId) {
+  const game = games.get(gameId);
+  if (!game) {
+    return game;
+  }
+  game.push({
+    sessionId: random.getId,
+    board: getNewBoard(),
+  });
+  games.set(gameId, game);
+  sessions.set(game[0].sessionId, {
+    gameId,
+    boardIndex: 1
+  });
+  return game;
+}
 
 function getNewGameId() {
   const id = random.getId();
@@ -75,30 +122,44 @@ function getNewGameId() {
   return id;
 }
 
-function getNewGame() {
-  const newGameId = getNewGameId();
-  const sessionId = random.getId();
-
-  const session = {
-    id: sessionId,
-    board: getNewBoard()
+function getNewBoard(boardSize = 10) {
+  const defaultPoint = {
+    hasShip: false,
+    shot: false
   };
-  sessions.set(sessionId, session);
-
-  const game = {
-    id: newGameId,
-    gameCreator: session
-  };
-  games.set(newGameId, game);
-
-  return game;
+  const board = [];
+  for (let i = 0; i < boardSize; i++) {
+    const row = [];
+    for (let k = 0; k < boardSize; k++) {
+      row.push({
+        hasShip: false,
+        shot: false,
+      });
+    }
+    board.push(row);
+  }
+  return board;
 }
 
-function getNewBoard(boardSize = 10) {
-  return new Array(boardSize).fill(
-    new Array(boardSize).fill({
-      hasShip: false,
-      hit: false
-    })
-  );
+function createTemporaryGame() {
+  const gameId = 'example';
+  const game = [
+    {
+      sessionId: '1',
+      board: getNewBoard(),
+    },
+    {
+      sessionId: '2',
+      board: getNewBoard(),
+    }
+ ];
+  games.set(gameId, game);
+  sessions.set(game[0].sessionId, {
+    gameId,
+    boardIndex: 0,
+  });
+  sessions.set(game[1].sessionId, {
+    gameId,
+    boardIndex: 1,
+  });
 }
