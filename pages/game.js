@@ -8,6 +8,7 @@ class Game extends React.Component {
     super(props);
     this.state = {
       game: null,
+      sessions : [],
     }
   }
 
@@ -22,45 +23,33 @@ class Game extends React.Component {
     }
   }
 
-  renderPlayer = () => {
-    const { game, session } = this.state;
-    return <Player initialBoard={game[session.boardIndex].board} {...this.props.router.query}  />;
+  renderPlayer = ({ board, sessionId }) => {
+    return <Player initialBoard={board} key={sessionId} {...this.props.router.query}  />;
   };
 
-  renderViewer = (board, boardType) =>
-    <Viewer boardType={boardType} initialBoard={board} {...this.props.router.query} />;
+  renderViewer = ({ board, sessionId }, hasOpponent) =>
+    <Viewer boardType={hasOpponent ? 'opponent' : 'viewer'} initialBoard={board} key={sessionId} {...this.props.router.query} />;
 
-  renderGameAsViewer = () => {
-    const { game } = this.state;
-    return (
-      <GameLayout>
-        {this.renderViewer(game[0].board, 'viewer')}
-        {game.length > 1 ? this.renderViewer(game[1].board, 'viewer') : 'Player 2 not playing yet'}
-      </GameLayout>
-    );
-  }
-
-  renderGameAsPlayer = () => {
-    const { game, session } = this.state;
-    const { board } = session.boardIndex === 1 ? game[0] : game[1];
-
-    return (
-      <GameLayout>
-        {this.renderPlayer()}
-        {this.renderViewer(board, 'opponent')}
-      </GameLayout>
+  renderBoards = () => {
+    const { hasOpponent, sessions } = this.state;
+    const { gameId, sessionId } = this.props.router.query;
+    return sessions.map((session) =>
+      session.sessionId === sessionId
+        ? this.renderPlayer(session)
+        : this.renderViewer(session, hasOpponent)
     );
   };
 
   render() {
-    const { game, session } = this.state;
+    const { game } = this.state;
     if (!game) {
       return <div>Loading...</div>;
     }
-    if (session) {
-      return this.renderGameAsPlayer();
-    }
-    return this.renderGameAsViewer();
+    return (
+      <GameLayout>
+        {this.renderBoards()}
+      </GameLayout>
+    )
   }
 }
 

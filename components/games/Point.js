@@ -24,7 +24,7 @@ class Point extends React.PureComponent {
     }
 
     try {
-      const { data } = await axios.post('/api/games/attack', { sessionId, x, y });
+      const { data } = await axios.post(`/api/games/${gameId}/attack/`, { sessionId, x, y });
       console.log('result: ', data);
     } catch (e) {
       console.log('e: ', e);
